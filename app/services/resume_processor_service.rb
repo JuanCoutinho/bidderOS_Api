@@ -6,7 +6,7 @@ class ResumeProcessorService
     @file_path = file_path
     @original_filename = original_filename
     @extension = File.extname(original_filename).downcase
-    @embedding_service = EmbeddingService.new
+    @embedding_service = EmbeddingService.new(user.gemini_api_key)
   end
 
   def call

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_02_21_175000) do
+ActiveRecord::Schema.define(version: 2026_03_31_153831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,9 +20,9 @@ ActiveRecord::Schema.define(version: 2026_02_21_175000) do
     t.bigint "user_id", null: false
     t.string "filename"
     t.text "content_text"
-    t.vector "embedding", limit: 1536
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.vector "embedding", limit: 768
     t.index ["user_id"], name: "index_resumes_on_user_id"
   end
 
@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(version: 2026_02_21_175000) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "name"
+    t.string "gemini_api_key"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

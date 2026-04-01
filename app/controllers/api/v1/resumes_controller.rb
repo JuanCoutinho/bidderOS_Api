@@ -7,8 +7,8 @@ module Api
       end
 
       def create
+        return render json: { error: 'Gemini API Key is missing. Please set it in your account settings.' }, status: :bad_request if current_user.gemini_api_key.blank?
         return render json: { error: 'No files sent or invalid format.' }, status: :bad_request unless params[:files].is_a?(Array)
-
         processed = []
         errors = []
 

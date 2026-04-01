@@ -2,7 +2,7 @@ require 'net/http'
 require 'uri'
 require 'json'
 
-class CoverLetterService
+class GapAnalysisService
   MODEL = "gemini-2.5-flash"
 
   def initialize(api_key, resume_text, job_description)
@@ -16,13 +16,14 @@ class CoverLetterService
     raise ArgumentError, "API Key is missing" if @api_key.blank?
 
     prompt = <<~PROMPT
-      You are an expert career coach and cover letter writer.
+      You are an expert HR recruiter and technical interviewer.
+      Current Date Context: Today is #{Date.today.strftime('%B %Y')}. Do NOT treat dates up to this year as being in the future.
       I will provide you with a candidate's resume and a job description.
-      Your task is to write a highly persuasive, professional, and tailored cover letter
-      that highlights the candidate's most relevant skills and experiences for this specific role.
-
-      Tone: Professional, confident, and engaging.
-      Format: Clean text, paragraph format. Do not include placeholder names or addresses at the top (like [Your Name]), jump straight into the greeting like "Dear Hiring Manager,".
+      Your task is to analyze the candidate's resume against the exact requirements, skills, and qualifications listed in the job description.
+      Identify what is MISSING from the resume (the "gaps") or what could be improved to increase the candidate's likelihood of being hired.
+      Provide a highly actionable, constructive, and concise gap analysis.
+      
+      Format your response as a direct list of actionable bullet points, focusing only on the gaps and how to bridge them. Do not include introductory or concluding fluff. Keep it concise but detailed.
       Language: Match the language of the job description. If the job description is in Portuguese, write in Portuguese.
 
       ### JOB DESCRIPTION:
@@ -48,16 +49,16 @@ class CoverLetterService
 
     if !response.is_a?(Net::HTTPSuccess)
       error_msg = parsed_response.dig("error", "message") || response.body
-      Rails.logger.error("[CoverLetterService] Gemini error: #{error_msg}")
+      Rails.logger.error("[GapAnalysisService] Gemini error: #{error_msg}")
       raise "Gemini API Error: #{error_msg}"
     end
 
-    letter = parsed_response.dig("candidates", 0, "content", "parts", 0, "text")
-    raise "Gemini returned no text" if letter.nil?
+    analysis = parsed_response.dig("candidates", 0, "content", "parts", 0, "text")
+    raise "Gemini returned no text" if analysis.nil?
 
-    letter
+    analysis
   rescue => e
-    Rails.logger.error("[CoverLetterService] Error: #{e.message}")
+    Rails.logger.error("[GapAnalysisService] Error: #{e.message}")
     raise
   end
 end
