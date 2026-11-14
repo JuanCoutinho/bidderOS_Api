@@ -10,11 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_03_31_153831) do
+ActiveRecord::Schema.define(version: 2026_04_06_162233) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
+
+  create_table "outreach_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "resume_id", null: false
+    t.string "recipient_email"
+    t.string "recipient_name"
+    t.string "subject"
+    t.text "body"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["resume_id"], name: "index_outreach_logs_on_resume_id"
+    t.index ["user_id"], name: "index_outreach_logs_on_user_id"
+  end
 
   create_table "resumes", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -23,6 +36,7 @@ ActiveRecord::Schema.define(version: 2026_03_31_153831) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.vector "embedding", limit: 768
+    t.string "file_path"
     t.index ["user_id"], name: "index_resumes_on_user_id"
   end
 
@@ -34,8 +48,12 @@ ActiveRecord::Schema.define(version: 2026_03_31_153831) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "name"
     t.string "gemini_api_key"
+    t.string "smtp_user"
+    t.string "smtp_pass"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "outreach_logs", "resumes"
+  add_foreign_key "outreach_logs", "users"
   add_foreign_key "resumes", "users"
 end
